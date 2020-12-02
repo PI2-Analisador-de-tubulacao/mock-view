@@ -120,29 +120,31 @@ class Prediction extends React.Component {
 
   preprocessImage = async () => {
     const myImage = this.getImage();
-    this.setState({ imageToPredict: myImage.src });
+		myImage.onload = () => {
+			this.setState({ imageToPredict: myImage.src });
 
-    const data = tf.browser.fromPixels(myImage);
-    let tensor = tf.image.resizeBilinear(data, [448, 448]); // 192,192
-    tensor = tensor.reshape([1, 448, 448, 3]).div(tf.scalar(255));
+			const data = tf.browser.fromPixels(myImage);
+			let tensor = tf.image.resizeBilinear(data, [448, 448]); // 192,192
+			tensor = tensor.reshape([1, 448, 448, 3]).div(tf.scalar(255));
 
-    const { model } = this.state;
-    const prediction = model.executeAsync(tensor);
-    prediction
-      .then((p) => {
-        p.data()
-          .then((predData) => {
-            this.arrayToImg(predData, myImage.height, myImage.width);
-            return null;
-          })
-          .catch(() => {
-            return null;
-          });
-        return null;
-      })
-      .catch(() => {
-        return null;
-      });
+			const { model } = this.state;
+			const prediction = model.executeAsync(tensor);
+			prediction
+				.then((p) => {
+					p.data()
+						.then((predData) => {
+							this.arrayToImg(predData, myImage.height, myImage.width);
+							return null;
+						})
+						.catch(() => {
+							return null;
+						});
+					return null;
+				})
+				.catch(() => {
+					return null;
+				});
+		}
   };
 
   predict = () => {
